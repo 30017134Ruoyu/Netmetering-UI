@@ -52,7 +52,6 @@
             By transferring excess electricity to the grid, you can receive a credit or cash benefit.
           </p>
 
-          
           <a-row :gutter="16" class="balance-section">
             <a-col :span="12">
               <a-card title="Available Balance">
@@ -66,9 +65,24 @@
             </a-col>
           </a-row>
 
-          
           <a-card title="Transfer Energy" class="transfer-section">
             <a-row :gutter="24">
+              <a-col :span="12">
+                <div class="section-label">Select Receiver:</div>
+                <a-select
+                  v-model:value="selectedReceiver"
+                  style="width: 100%"
+                  placeholder="Select a receiver"
+                  @change="handleReceiverChange"
+                >
+                  <a-select-option v-for="receiver in receivers" :key="receiver.id" :value="receiver.id">
+                    {{ receiver.name }}
+                  </a-select-option>
+                </a-select>
+              </a-col>
+            </a-row>
+
+            <a-row :gutter="24" style="margin-top: 24px">
               <a-col :span="12">
                 <div class="section-label">Enter Amount to Transfer (kWh):</div>
                 <a-input-number
@@ -126,22 +140,31 @@ const selectedKeys = ref<string[]>(['transfer'])
 const username = ref<string>('User')
 const loading = ref<boolean>(false)
 
-
+// Transfer related data
 const availableBalance = ref(6000)
 const transferBalance = ref(3000)
 const transferAmount = ref(300)
 const ratePerKWh = 0.5 
 
+// Receiver related data
+const selectedReceiver = ref<string>('')
+const receivers = ref([
+  { id: '1', name: 'Food Bank' }
+  
+  
+])
 
 const estimatedEarnings = computed(() => {
   return (transferAmount.value * ratePerKWh).toFixed(2)
 })
 
-
 const handleMenuSelect = ({ key }: { key: string }) => {
   router.push(`/${key}`)
 }
 
+const handleReceiverChange = (value: string) => {
+  console.log('Selected receiver:', value)
+}
 
 const handleAmountChange = (value: number) => {
   if (value > availableBalance.value) {
@@ -150,8 +173,12 @@ const handleAmountChange = (value: number) => {
   }
 }
 
-
 const handleTransfer = async () => {
+  if (!selectedReceiver.value) {
+    message.warning('Please select a receiver')
+    return
+  }
+
   if (transferAmount.value <= 0) {
     message.warning('Please enter a valid amount')
     return
@@ -169,11 +196,9 @@ const handleTransfer = async () => {
   }
 }
 
-
 const handleCancel = () => {
   router.push('/dashboard')
 }
-
 
 const getUserInfo = () => {
   const userInfo = localStorage.getItem('userInfo')
@@ -183,11 +208,9 @@ const getUserInfo = () => {
   }
 }
 
-
 const handleProfile = () => {
   console.log('Navigate to profile page')
 }
-
 
 const handleLogout = () => {
   localStorage.removeItem('token')
