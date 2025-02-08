@@ -25,6 +25,7 @@
         <a-button type="primary" @click="fetchLogin">FetchLogin</a-button>
         <a-button type="primary" @click="fetchData">FetchData</a-button>
         <a-button type="primary" @click="fetchWelcome">fetchWelcome</a-button>
+        <a-button type="primary" @click="transfer">Transfer</a-button>
       </div>
     </div>
   </div>
@@ -36,6 +37,34 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const URL = "http://localhost:8080";
+
+const transfer = async () => {
+  try {
+    const requestBody = {
+      amount: 2000.0,
+      fromEmail: "qiao0174@gmail.com",
+      toEmail: "lloyddonegan@gmail.com",
+    };
+    const response = await fetch(URL + "/api/transfer/init", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.log(errorMessage);
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    } else {
+      console.log("Transacton succeed!");
+    }
+  } catch (error) {
+    console.log("Fetch error:", error);
+  }
+};
 
 const fetchLogin = async () => {
   try {
