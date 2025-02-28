@@ -13,19 +13,14 @@
         OttawaNM
       </h1>
       <div>
-        <a-button
-          type="primary"
-          style="margin-right: 10px"
-          @click="goToRegister"
-          >Register</a-button
-        >
-        <a-button type="primary" @click="goToLogin">Login</a-button>
+        
+        <a-button type="primary" @click="fetchLogin">Login</a-button>
       </div>
       <div>
-        <a-button type="primary" @click="fetchLogin">FetchLogin</a-button>
         <a-button type="primary" @click="fetchData">FetchData</a-button>
         <a-button type="primary" @click="fetchWelcome">fetchWelcome</a-button>
         <a-button type="primary" @click="transfer">Transfer</a-button>
+        <a-button type="primary" @click="fetchInfo">FetchInfo</a-button>
       </div>
     </div>
   </div>
@@ -37,13 +32,31 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const URL = "http://localhost:8080";
+const fetchInfo = async () => {
+  try {
+    const response  = await fetch(URL + "/api/user/info",{
+
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json", // Expect an HTML response
+      },
+      credentials: "include",});
+      const info = await response.json();
+
+      console.log (info)
+
+    
+  } catch (error) {
+    
+  }
+}
 
 const transfer = async () => {
   try {
     const requestBody = {
       amount: 2000.0,
-      fromEmail: "qiao0174@gmail.com",
-      toEmail: "lloyddonegan@gmail.com",
+      fromEmail: "1346139924lry@gmail.com",
+      toEmail: "zj15996659920@gmail.com",
     };
     const response = await fetch(URL + "/api/transfer/init", {
       method: "POST",

@@ -1,19 +1,15 @@
 <template>
-  <a-layout style="min-height: 100vh">
+  <a-layout class="layout">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
       <div class="logo" />
-      <a-menu
-        v-model:selectedKeys="selectedKeys"
-        theme="dark"
-        mode="inline"
-      >
-        <a-menu-item key="dashboard" @click="() => router.push('/dashboard')">
+      <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
+        <a-menu-item key="dashboard" @click="handleMenuClick('dashboard')">
           <template #icon>
             <dashboard-outlined />
           </template>
           <span>Dashboard</span>
         </a-menu-item>
-        <a-menu-item key="transfer" @click="() => router.push('/transfer')">
+        <a-menu-item key="transfer" @click="handleMenuClick('transfer')">
           <template #icon>
             <swap-outlined />
           </template>
@@ -21,82 +17,80 @@
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
-    
+
     <a-layout>
-      <a-layout-header style="background: #fff; padding: 0">
-        <div style="float: right; margin-right: 24px">
+      <!-- Header -->
+      <a-layout-header class="header">
+        <div class="header__user">
           <a-dropdown>
-            <a class="ant-dropdown-link" @click.prevent>
+            <a class="header__dropdown">
               {{ username }}
               <down-outlined />
             </a>
             <template #overlay>
               <a-menu>
                 <a-menu-item>
-                  <a href="javascript:;" @click="handleProfile">Profile</a>
-                </a-menu-item>
-                <a-menu-item>
-                  <a href="javascript:;" @click="handleLogout">Logout</a>
+                  <a @click="handleLogout">Logout</a>
                 </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
         </div>
       </a-layout-header>
-      
-      <a-layout-content style="margin: 24px 16px 0">
-        <div class="dashboard-content">
-          
-          <a-row :gutter="16" class="mb-4">
+
+      <!-- Content -->
+      <a-layout-content class="content">
+        <div class="content__main">
+          <a-row :gutter="16" class="overview">
             <a-col :span="12">
               <a-card title="General Information" :bordered="false">
                 <a-row :gutter="16">
                   <a-col :span="12">
-                    <div class="info-item">
-                      <div class="label">Available Balance</div>
-                      <div class="value text-primary">{{ generalInfo.availableBalance }}kWh</div>
+                    <div class="overview__item">
+                      <div class="overview__label">Available Balance</div>
+                      <div class="overview__value">{{ generalInfo.availableBalance }}kWh</div>
                     </div>
-                    <div class="info-item">
-                      <div class="label">Total Generated</div>
-                      <div class="value text-primary">{{ generalInfo.totalGenerated }}kWh</div>
+                    <div class="overview__item">
+                      <div class="overview__label">Total Generated</div>
+                      <div class="overview__value">{{ generalInfo.totalGenerated }}kWh</div>
                     </div>
                   </a-col>
                   <a-col :span="12">
-                    <div class="info-item">
-                      <div class="label">Transfer Balance</div>
-                      <div class="value text-primary">
+                    <div class="overview__item">
+                      <div class="overview__label">Transfer Balance</div>
+                      <div class="overview__value">
                         {{ generalInfo.transferBalance }}kWh
-                        <a-button type="link" size="small" @click="router.push('/transfer')">
+                        <a-button type="link" size="small" @click="handleMenuClick('transfer')">
                           Transfer now
                         </a-button>
                       </div>
                     </div>
-                    <div class="info-item">
-                      <div class="label">Self-Used</div>
-                      <div class="value text-primary">{{ generalInfo.selfUsed }}kWh</div>
+                    <div class="overview__item">
+                      <div class="overview__label">Self-Used</div>
+                      <div class="overview__value">{{ generalInfo.selfUsed }}kWh</div>
                     </div>
                   </a-col>
                 </a-row>
               </a-card>
             </a-col>
-            
+
             <a-col :span="12">
               <a-card title="Cumulative Income" :bordered="false">
-                <div class="info-item">
-                  <div class="label">Cumulative income</div>
-                  <div class="value text-primary">${{ income.cumulative }}</div>
+                <div class="overview__item">
+                  <div class="overview__label">Cumulative income</div>
+                  <div class="overview__value">${{ income.cumulative }}</div>
                 </div>
                 <a-row :gutter="16">
                   <a-col :span="12">
-                    <div class="info-item">
-                      <div class="label">Monthly income</div>
-                      <div class="value text-primary">${{ income.monthly }}</div>
+                    <div class="overview__item">
+                      <div class="overview__label">Monthly income</div>
+                      <div class="overview__value">${{ income.monthly }}</div>
                     </div>
                   </a-col>
                   <a-col :span="12">
-                    <div class="info-item">
-                      <div class="label">Potential income</div>
-                      <div class="value text-primary">${{ income.potential }}</div>
+                    <div class="overview__item">
+                      <div class="overview__label">Potential income</div>
+                      <div class="overview__value">${{ income.potential }}</div>
                     </div>
                   </a-col>
                 </a-row>
@@ -105,31 +99,32 @@
           </a-row>
 
           
-          <a-card 
-            title="Recent Transactions" 
-            class="mb-4"
-            :bordered="true"
-          >
-            <template #extra>Account Number: xxxxxxxxxx</template>
-            <a-list 
-              :dataSource="transactions" 
-              :loading="loading"
-            >
+          <a-card title="Recent Transactions" class="transactions" :bordered="true">
+            <template #extra>
+              <span class="transactions__account">Account: {{ userEmail }}</span>
+            </template>
+            <a-list :dataSource="transactions" :loading="loading">
               <template #renderItem="{ item }">
                 <a-list-item>
-                  <a-row style="width: 100%" :gutter="16">
+                  <a-row class="transactions__row">
                     <a-col :span="6">
-                      <div class="transaction-type">{{ item.type }}</div>
-                      <div class="transaction-date">{{ item.date }}</div>
+                      <div class="transactions__type">{{ item.type }}</div>
+                      <div class="transactions__date">{{ item.date }}</div>
                     </a-col>
                     <a-col :span="12">
-                      <div v-if="item.to">To: {{ item.to }}</div>
-                      <div :class="['transaction-status', getStatusClass(item.status)]">
+                      <div v-if="item.to" class="transactions__receiver">
+                        To: {{ item.to }}
+                      </div>
+                      <div class="transactions__status"
+                           :class="{ 'transactions__status--completed': item.status === 'Complete',
+                                   'transactions__status--processing': item.status !== 'Complete' }">
                         Status: {{ item.status }}
                       </div>
                     </a-col>
-                    <a-col :span="6" style="text-align: right">
-                      <div class="transaction-amount">{{ item.amount }}kWh</div>
+                    <a-col :span="6">
+                      <div class="transactions__amount">
+                        {{ item.amount }}kWh
+                      </div>
                     </a-col>
                   </a-row>
                 </a-list-item>
@@ -138,8 +133,8 @@
           </a-card>
         </div>
       </a-layout-content>
-      
-      <a-layout-footer style="text-align: center">
+
+      <a-layout-footer class="footer">
         Ottawa NM ©2024
       </a-layout-footer>
     </a-layout>
@@ -147,57 +142,43 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   DashboardOutlined,
   SwapOutlined,
   DownOutlined
-} from '@ant-design/icons-vue'
+} from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 
-const router = useRouter()
-const collapsed = ref<boolean>(false)
-const selectedKeys = ref<string[]>(['dashboard'])
-const username = ref<string>('User')
-const loading = ref<boolean>(false)
+const URL = "http://localhost:8080";
+const router = useRouter();
 
-// 数据结构
-interface GeneralInfo {
-  availableBalance: number
-  transferBalance: number
-  totalGenerated: number
-  selfUsed: number
-}
 
-interface Income {
-  cumulative: number
-  monthly: number
-  potential: number
-}
+const collapsed = ref<boolean>(false);
+const selectedKeys = ref(['dashboard']);
+const loading = ref(false);
+const username = ref('User');
+const userEmail = ref('');
 
-interface Transaction {
-  type: string
-  date: string
-  to?: string
-  status: string
-  amount: number
-}
 
-// 数据状态
-const generalInfo = ref<GeneralInfo>({
-  availableBalance: 6000,
-  transferBalance: 3000,
-  totalGenerated: 13000,
-  selfUsed: 4000
-})
+const generalInfo = ref({
+  availableBalance: 0,
+  transferBalance: 0,
+  totalGenerated: 0,
+  selfUsed: 0
+});
 
-const income = ref<Income>({
-  cumulative: 500,
-  monthly: 50,
-  potential: 140
-})
+const income = ref({
+  cumulative: 0,
+  monthly: 0,
+  potential: 0
+});
 
-const transactions = ref<Transaction[]>([
+
+//next TODO: GET transactions by calling api
+
+const transactions = ref([
   {
     type: 'Generate',
     date: '2024-12-1',
@@ -218,141 +199,190 @@ const transactions = ref<Transaction[]>([
     status: 'Complete',
     amount: 300
   }
-])
+]);
 
-// API 调用函数
-const fetchDashboardData = async () => {
+
+const handleMenuClick = (route: string) => {
+  router.push(`/${route}`);
+};
+
+// Fetch DashboardInfo
+const fetchDashboardInfo = async () => {
   try {
-    loading.value = true
-    // TODO: 实际 API 调用
-    /* const response = await fetch('/api/dashboard', {
+    loading.value = true;
+    const response = await fetch(URL + "/api/user/info", {
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-    const data = await response.json()
-    generalInfo.value = data.generalInfo
-    income.value = data.income */
-  } catch (error) {
-    console.error('Failed to fetch dashboard data:', error)
-  } finally {
-    loading.value = false
-  }
-}
+        "Content-Type": "application/json"
+      },
+      credentials: "include"
+    });
 
-const fetchTransactions = async () => {
+    if (!response.ok) {
+      throw new Error('Failed to fetch dashboard data');
+    }
+
+    const userInfo = await response.json();
+    
+    username.value = userInfo.full_name || 'User';
+    userEmail.value = userInfo.email;
+    
+    generalInfo.value = {
+      availableBalance: userInfo.account.availableBalance || 0,
+      transferBalance: userInfo.account.transferedBalance || 0,
+      totalGenerated: userInfo.account.energyBalance || 0,
+      selfUsed: userInfo.account.consumedBalance || 0
+    };
+
+    income.value = {
+      cumulative: userInfo.account.cumulativeIncome || 0,
+      monthly: userInfo.account.averageIncome || 0,
+      potential: (userInfo.account.availableBalance || 0) * 0.1
+    };
+
+  } catch (error) {
+    console.error('Failed to fetch dashboard info:', error);
+    message.error('Failed to load user information');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Fetch logout
+const handleLogout = async () => {
   try {
-    loading.value = true
-    // TODO: 实际 API 调用
-    /* const response = await fetch('/api/transactions', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-    const data = await response.json()
-    transactions.value = data.transactions */
+    const response = await fetch(URL + "/api/logout", {
+      method: "GET",
+      credentials: "include",
+    });
+ 
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+ 
+    localStorage.removeItem('token');
+    window.location.href = "/";
   } catch (error) {
-    console.error('Failed to fetch transactions:', error)
-  } finally {
-    loading.value = false
+    console.error('Logout failed:', error);
+    message.error('Logout failed. Please try again.');
+    window.location.href = "/";
   }
-}
+};
 
-const getUserInfo = () => {
-  const userInfo = localStorage.getItem('userInfo')
-  if (userInfo) {
-    const parsedInfo = JSON.parse(userInfo)
-    username.value = parsedInfo.username || 'User'
-  }
-}
-
-const handleProfile = () => {
-  console.log('Navigate to profile page')
-}
-
-const handleLogout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('userInfo')
-  router.push('/login')
-}
-
-const getStatusClass = (status: string) => {
-  return {
-    'status-complete': status === 'Complete',
-    'status-progress': status === 'In progress'
-  }
-}
 
 onMounted(() => {
-  getUserInfo()
-  fetchDashboardData()
-  fetchTransactions()
-})
+  fetchDashboardInfo();
+});
 </script>
 
 <style scoped>
+
+.layout {
+  min-height: 100vh;
+}
+
 .logo {
   height: 32px;
   margin: 16px;
   background: rgba(255, 255, 255, 0.3);
 }
 
-.ant-layout-sider {
-  background: #001529;
+
+.header {
+  background: #fff;
+  padding: 0;
 }
 
-.ant-dropdown-link {
+.header__user {
+  float: right;
+  margin-right: 24px;
+}
+
+.header__dropdown {
   color: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
 }
 
-.dashboard-content {
+
+.content {
+  margin: 24px 16px 0;
+}
+
+.content__main {
   padding: 24px;
   background: #fff;
   min-height: 360px;
 }
 
-.mb-4 {
+
+.overview {
+  margin-bottom: 24px;
+}
+
+.overview__item {
   margin-bottom: 16px;
 }
 
-.info-item {
-  margin-bottom: 16px;
-}
-
-.label {
+.overview__label {
   color: rgba(0, 0, 0, 0.45);
   font-size: 14px;
 }
 
-.value {
+.overview__value {
+  color: #1890ff;
   font-size: 24px;
   font-weight: bold;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
-.text-primary {
-  color: #1890ff;
+
+.transactions {
+  margin-bottom: 24px;
 }
 
-.transaction-type {
+.transactions__account {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+}
+
+.transactions__row {
+  width: 100%;
+}
+
+.transactions__type {
   font-weight: bold;
+  color: rgba(0, 0, 0, 0.85);
 }
 
-.transaction-date, .transaction-status {
+.transactions__date {
   color: rgba(0, 0, 0, 0.45);
   font-size: 14px;
 }
 
-.transaction-amount {
-  font-weight: bold;
-  color: #1890ff;
+.transactions__receiver {
+  color: rgba(0, 0, 0, 0.85);
 }
 
-.status-complete {
+.transactions__status {
+  font-size: 14px;
+}
+
+.transactions__status--completed {
   color: #52c41a;
 }
 
-.status-progress {
+.transactions__status--processing {
   color: #1890ff;
+}
+
+.transactions__amount {
+  text-align: right;
+  font-weight: bold;
+  color: #1890ff;
+}
+
+
+.footer {
+  text-align: center;
 }
 </style>
