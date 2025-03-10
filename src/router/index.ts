@@ -4,6 +4,7 @@ import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Register from '../views/Register.vue'
 import Transfer from '../views/Transfer.vue'
+import TransferConfirmation from '../views/TransferConfirmation.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,7 +37,13 @@ const router = createRouter({
       name: 'transfer',
       component: Transfer,
       
-    }
+    },
+    {
+      path: '/confirmation',
+      name: 'confirmation',
+      component: TransferConfirmation,
+    
+    },
   ]
 })
 

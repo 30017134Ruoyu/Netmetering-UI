@@ -226,6 +226,7 @@ const fetchUserInfo = async () => {
 };
 
 // Handle transfer
+// Handle transfer
 const handleTransfer = async () => {
   if (!selectedReceiver.value) {
     message.warning('Please select a receiver');
@@ -264,8 +265,24 @@ const handleTransfer = async () => {
     } else {
       console.log("Transaction succeed!");
       message.success('Transfer successful');
+      
+      // get receiver name
+      const receiver = globalAccounts.value.find(account => account.email === selectedReceiver.value);
+      const receiverName = receiver ? receiver.full_name : '';
+      
+      // storage transfer info
+      const transferData = {
+        toEmail: selectedReceiver.value,
+        receiverName: receiverName,
+        amount: transferAmount.value,
+        remainingBalance: availableBalance.value - transferAmount.value,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('lastTransferData', JSON.stringify(transferData));
+      
+      
+      router.push('/confirmation');
     }
-    router.push('/dashboard');
   } catch (error) {
     console.error("Fetch error:", error);
     message.error('Transfer failed. Please try again.');

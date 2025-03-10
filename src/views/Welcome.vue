@@ -14,7 +14,7 @@
       </h1>
       <div>
         
-        <a-button type="primary" @click="fetchLogin">Login</a-button>
+        <a-button type="primary" @click="fetchLogin">Login with Google Account</a-button>
       </div>
       <div>
         <a-button type="primary" @click="fetchData">FetchData</a-button>
@@ -81,21 +81,22 @@ const transfer = async () => {
 
 const fetchLogin = async () => {
   try {
-    const response = await fetch(URL + "/login", {
-      method: "GET",
-      headers: {
-        "Content-Type": "text/html", // Expect an HTML response
-      },
-    });
+//    const response = await fetch(URL + "/login", {
+     // method: "GET",
+     // headers: {
+      //  "Content-Type": "text/html", // Expect an HTML response
+     // },
+    //});
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    } else {
-      window.location.href = response.url;
-    }
+    //if (!response.ok) {
+    //  throw new Error(`HTTP error! Status: ${response.status}`);
+    //} else {
+     // window.location.href = response.url;
+   // }
 
-    const html = await response.text(); // Parse response as text
-    console.log("Login page HTML:", html);
+    //const html = await response.text(); // Parse response as text
+    //sconsole.log("Login page HTML:", html);
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
   } catch (error) {
     console.error("Fetch error:", error);
   }
