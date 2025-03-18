@@ -1,14 +1,21 @@
 // src/api/authService.ts
-import api from './index'
+import api from "./index";
+import type {
+  Transaction,
+  EnergyAccount,
+  Receiver,
+  Register,
+  Login,
+} from "@/types";
 
 export const authService = {
-  // 获取当前用户信息
-  getCurrentUser() {
-    return api.get('/user')
+  register(user: Register) {
+    return api.post("/auth/register", user);
   },
-  
-  // 登出
+  login(login: Login) {
+    return api.post("/auth/login", login);
+  },
   logout() {
-    return api.get('/api/logout')
-  }
-}
+    return api.get("/api/logout");
+  },
+};

@@ -24,7 +24,7 @@
         <div class="header__user">
           <a-dropdown>
             <a class="header__dropdown">
-              {{ username }}
+              {{ userStore.user?.full_name }}
               <down-outlined />
             </a>
             <template #overlay>
@@ -48,26 +48,36 @@
                   <a-col :span="12">
                     <div class="overview__item">
                       <div class="overview__label">Available Balance</div>
-                      <div class="overview__value">{{ generalInfo.availableBalance }}kWh</div>
+                      <div class="overview__value">
+                        {{ userStore.user?.account?.availableBalance }}kWh
+                      </div>
                     </div>
                     <div class="overview__item">
                       <div class="overview__label">Total Generated</div>
-                      <div class="overview__value">{{ generalInfo.totalGenerated }}kWh</div>
+                      <div class="overview__value">
+                        {{ userStore.user?.account?.energyBalance }}kWh
+                      </div>
                     </div>
                   </a-col>
                   <a-col :span="12">
                     <div class="overview__item">
                       <div class="overview__label">Transfer Balance</div>
                       <div class="overview__value">
-                        {{ generalInfo.transferBalance }}kWh
-                        <a-button type="link" size="small" @click="handleMenuClick('transfer')">
+                        {{ userStore.user?.account?.transferedBalance }}kWh
+                        <a-button
+                          type="link"
+                          size="small"
+                          @click="handleMenuClick('transfer')"
+                        >
                           Transfer now
                         </a-button>
                       </div>
                     </div>
                     <div class="overview__item">
                       <div class="overview__label">Self-Used</div>
-                      <div class="overview__value">{{ generalInfo.selfUsed }}kWh</div>
+                      <div class="overview__value">
+                        {{ userStore.user?.account?.consumedBalance }}kWh
+                      </div>
                     </div>
                   </a-col>
                 </a-row>
@@ -78,19 +88,25 @@
               <a-card title="Cumulative Income" :bordered="false">
                 <div class="overview__item">
                   <div class="overview__label">Cumulative income</div>
-                  <div class="overview__value">${{ income.cumulative }}</div>
+                  <div class="overview__value">
+                    ${{ userStore.user?.account?.cumulativeIncome }}
+                  </div>
                 </div>
                 <a-row :gutter="16">
                   <a-col :span="12">
                     <div class="overview__item">
                       <div class="overview__label">Monthly income</div>
-                      <div class="overview__value">${{ income.monthly }}</div>
+                      <div class="overview__value">
+                        ${{ userStore.user?.account?.averageIncome }}
+                      </div>
                     </div>
                   </a-col>
                   <a-col :span="12">
                     <div class="overview__item">
                       <div class="overview__label">Potential income</div>
-                      <div class="overview__value">${{ income.potential }}</div>
+                      <div class="overview__value">
+                        ${{ userStore.user?.account?.averageIncome }}
+                      </div>
                     </div>
                   </a-col>
                 </a-row>
@@ -98,10 +114,15 @@
             </a-col>
           </a-row>
 
-          
-          <a-card title="Recent Transactions" class="transactions" :bordered="true">
+          <a-card
+            title="Recent Transactions"
+            class="transactions"
+            :bordered="true"
+          >
             <template #extra>
-              <span class="transactions__account">Account: {{ userEmail }}</span>
+              <span class="transactions__account"
+                >Account: {{ userStore.user?.email }}</span
+              >
             </template>
             <a-list :dataSource="transactions" :loading="loading">
               <template #renderItem="{ item }">
@@ -115,9 +136,15 @@
                       <div v-if="item.to" class="transactions__receiver">
                         To: {{ item.to }}
                       </div>
-                      <div class="transactions__status"
-                           :class="{ 'transactions__status--completed': item.status === 'Complete',
-                                   'transactions__status--processing': item.status !== 'Complete' }">
+                      <div
+                        class="transactions__status"
+                        :class="{
+                          'transactions__status--completed':
+                            item.status === 'Complete',
+                          'transactions__status--processing':
+                            item.status !== 'Complete',
+                        }"
+                      >
                         Status: {{ item.status }}
                       </div>
                     </a-col>
@@ -134,115 +161,76 @@
         </div>
       </a-layout-content>
 
-      <a-layout-footer class="footer">
-        Ottawa NM ©2024
-      </a-layout-footer>
+      <a-layout-footer class="footer"> Ottawa NM ©2024 </a-layout-footer>
     </a-layout>
   </a-layout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import {
   DashboardOutlined,
   SwapOutlined,
-  DownOutlined
-} from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
+  DownOutlined,
+} from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import type { User } from "@/types";
+import { useUserStore } from "@/stores/user";
+import { userService } from "@/api/userService";
 
 const URL = "http://localhost:8080";
 const router = useRouter();
 
-
 const collapsed = ref<boolean>(false);
-const selectedKeys = ref(['dashboard']);
+const selectedKeys = ref(["dashboard"]);
 const loading = ref(false);
-const username = ref('User');
-const userEmail = ref('');
 
-
-const generalInfo = ref({
-  availableBalance: 0,
-  transferBalance: 0,
-  totalGenerated: 0,
-  selfUsed: 0
-});
-
-const income = ref({
-  cumulative: 0,
-  monthly: 0,
-  potential: 0
-});
-
+// Current logged in user
+const userStore = useUserStore();
 
 //next TODO: GET transactions by calling api
 
 const transactions = ref([
   {
-    type: 'Generate',
-    date: '2024-12-1',
-    status: 'Complete',
-    amount: 1000
+    type: "Generate",
+    date: "2024-12-1",
+    status: "Complete",
+    amount: 1000,
   },
   {
-    type: 'Transfer',
-    date: '2024-12-1',
-    to: 'HydroOttawa',
-    status: 'In progress',
-    amount: 300
+    type: "Transfer",
+    date: "2024-12-1",
+    to: "HydroOttawa",
+    status: "In progress",
+    amount: 300,
   },
   {
-    type: 'Transfer',
-    date: '2024-11-15',
-    to: 'HydroOttawa',
-    status: 'Complete',
-    amount: 300
-  }
+    type: "Transfer",
+    date: "2024-11-15",
+    to: "HydroOttawa",
+    status: "Complete",
+    amount: 300,
+  },
 ]);
-
 
 const handleMenuClick = (route: string) => {
   router.push(`/${route}`);
 };
 
 // Fetch DashboardInfo
-const fetchDashboardInfo = async () => {
+const fetchUserInfo = async () => {
   try {
     loading.value = true;
-    const response = await fetch(URL + "/api/user/info", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include"
-    });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch dashboard data');
-    }
+    const userInfo = await userService.getUserInfo();
 
-    const userInfo = await response.json();
-    
-    username.value = userInfo.full_name || 'User';
-    userEmail.value = userInfo.email;
-    
-    generalInfo.value = {
-      availableBalance: userInfo.account.availableBalance || 0,
-      transferBalance: userInfo.account.transferedBalance || 0,
-      totalGenerated: userInfo.account.energyBalance || 0,
-      selfUsed: userInfo.account.consumedBalance || 0
-    };
+    console.log(userInfo);
 
-    income.value = {
-      cumulative: userInfo.account.cumulativeIncome || 0,
-      monthly: userInfo.account.averageIncome || 0,
-      potential: (userInfo.account.availableBalance || 0) * 0.1
-    };
-
+    userStore.setUser(userInfo.data as User);
   } catch (error) {
-    console.error('Failed to fetch dashboard info:', error);
-    message.error('Failed to load user information');
+    console.error("Failed to fetch dashboard info:", error);
+    message.error("Failed to load user information");
   } finally {
     loading.value = false;
   }
@@ -255,28 +243,26 @@ const handleLogout = async () => {
       method: "GET",
       credentials: "include",
     });
- 
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
- 
-    localStorage.removeItem('token');
+
+    localStorage.removeItem("token");
     window.location.href = "/";
   } catch (error) {
-    console.error('Logout failed:', error);
-    message.error('Logout failed. Please try again.');
+    console.error("Logout failed:", error);
+    message.error("Logout failed. Please try again.");
     window.location.href = "/";
   }
 };
 
-
 onMounted(() => {
-  fetchDashboardInfo();
+  fetchUserInfo();
 });
 </script>
 
 <style scoped>
-
 .layout {
   min-height: 100vh;
 }
@@ -286,7 +272,6 @@ onMounted(() => {
   margin: 16px;
   background: rgba(255, 255, 255, 0.3);
 }
-
 
 .header {
   background: #fff;
@@ -303,7 +288,6 @@ onMounted(() => {
   cursor: pointer;
 }
 
-
 .content {
   margin: 24px 16px 0;
 }
@@ -313,7 +297,6 @@ onMounted(() => {
   background: #fff;
   min-height: 360px;
 }
-
 
 .overview {
   margin-bottom: 24px;
@@ -334,7 +317,6 @@ onMounted(() => {
   font-weight: bold;
   margin-top: 8px;
 }
-
 
 .transactions {
   margin-bottom: 24px;
@@ -380,7 +362,6 @@ onMounted(() => {
   font-weight: bold;
   color: #1890ff;
 }
-
 
 .footer {
   text-align: center;

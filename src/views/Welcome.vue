@@ -13,8 +13,9 @@
         OttawaNM
       </h1>
       <div>
-        
-        <a-button type="primary" @click="fetchLogin">Login with Google Account</a-button>
+        <a-button type="primary" @click="fetchLogin"
+          >Login with Google Account</a-button
+        >
       </div>
       <div>
         <a-button type="primary" @click="fetchData">FetchData</a-button>
@@ -34,22 +35,18 @@ const router = useRouter();
 const URL = "http://localhost:8080";
 const fetchInfo = async () => {
   try {
-    const response  = await fetch(URL + "/api/user/info",{
-
+    const response = await fetch(URL + "/api/user/info", {
       method: "GET",
       headers: {
         "Content-Type": "application/json", // Expect an HTML response
       },
-      credentials: "include",});
-      const info = await response.json();
+      credentials: "include",
+    });
+    const info = await response.json();
 
-      console.log (info)
-
-    
-  } catch (error) {
-    
-  }
-}
+    console.log(info);
+  } catch (error) {}
+};
 
 const transfer = async () => {
   try {
@@ -81,18 +78,18 @@ const transfer = async () => {
 
 const fetchLogin = async () => {
   try {
-//    const response = await fetch(URL + "/login", {
-     // method: "GET",
-     // headers: {
-      //  "Content-Type": "text/html", // Expect an HTML response
-     // },
+    //    const response = await fetch(URL + "/login", {
+    // method: "GET",
+    // headers: {
+    //  "Content-Type": "text/html", // Expect an HTML response
+    // },
     //});
 
     //if (!response.ok) {
     //  throw new Error(`HTTP error! Status: ${response.status}`);
     //} else {
-     // window.location.href = response.url;
-   // }
+    // window.location.href = response.url;
+    // }
 
     //const html = await response.text(); // Parse response as text
     //sconsole.log("Login page HTML:", html);
