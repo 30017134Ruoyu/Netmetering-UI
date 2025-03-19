@@ -16,6 +16,6 @@ export const authService = {
     return api.post("/auth/login", login);
   },
   logout() {
-    return api.get("/api/logout");
+    return api.get("/auth/logout");
   },
 };

@@ -1,50 +1,112 @@
 <!-- Todo: set into BasicLayput -->
 <template>
+  <Header></Header>
   <a-layout class="layout-container">
-    <a-layout-sider v-model:collapsed="collapsed" collapsible>
-      <div class="logo" />
-      <a-menu
-        v-model:selectedKeys="selectedKeys"
-        theme="dark"
-        mode="inline"
-        @select="handleMenuSelect"
-      >
-        <a-menu-item key="dashboard">
-          <template #icon><dashboard-outlined /></template>
-          <span>Dashboard</span>
-        </a-menu-item>
-        <a-menu-item key="transfer">
-          <template #icon><swap-outlined /></template>
-          <span>Transfer</span>
-        </a-menu-item>
-      </a-menu>
-    </a-layout-sider>
-    
     <a-layout>
-      <a-layout-header class="header">
-        <div class="header-user">
-          <a-dropdown>
-            <a class="ant-dropdown-link" @click.prevent>
-              {{ username }}
-              <down-outlined />
-            </a>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item>
-                  <a @click="handleLogout">Logout</a>
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
-        </div>
-      </a-layout-header>
-      
-      
       <a-layout-content class="content">
         <div class="transfer-content">
-          <h1>Transfer Excess Energy</h1>
-          <h3>Discription: Net metering is a .....</h3>
-          <a-row :gutter="16" class="balance-section">
+          <div class="flex justify-content-between">
+            <h1 class="text-3xl">Account Overview</h1>
+            <Button
+              label="Dashboard"
+              severity="warning"
+              outlined
+              class="text-yellow-500"
+              @click="router.push('/dashboard')"
+            />
+          </div>
+          <div class="px-4 py-5 md:px-6 lg:px-8 text-xl">
+            <div class="grid">
+              <div class="col-12 md:col-6 lg:col-3">
+                <div class="surface-card shadow-2 p-3 border-round">
+                  <div class="flex justify-content-between mb-3">
+                    <div>
+                      <span class="block text-500 font-medium mb-3"
+                        >Total Energy</span
+                      >
+                      <div class="text-900 font-medium text-xl">
+                        {{ userStore.user?.account?.energyBalance }} kWh
+                      </div>
+                    </div>
+                    <div
+                      class="flex align-items-center justify-content-center bg-blue-100 border-round"
+                      style="width: 2.5rem; height: 2.5rem"
+                    >
+                      <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
+                    </div>
+                  </div>
+                  <span class="text-green-500 font-medium">24 new </span>
+                  <span class="text-500">since last visit</span>
+                </div>
+              </div>
+              <div class="col-12 md:col-6 lg:col-3">
+                <div class="surface-card shadow-2 p-3 border-round">
+                  <div class="flex justify-content-between mb-3">
+                    <div>
+                      <span class="block text-500 font-medium mb-3"
+                        >Avaliable balance</span
+                      >
+                      <div class="text-900 font-medium text-xl">
+                        {{ userStore.user?.account?.availableBalance }} kWh
+                      </div>
+                    </div>
+                    <div
+                      class="flex align-items-center justify-content-center bg-orange-100 border-round"
+                      style="width: 2.5rem; height: 2.5rem"
+                    >
+                      <i class="pi pi-map-marker text-orange-500 text-xl"></i>
+                    </div>
+                  </div>
+                  <span class="text-green-500 font-medium">%52+ </span>
+                  <span class="text-500">since last week</span>
+                </div>
+              </div>
+              <div class="col-12 md:col-6 lg:col-3">
+                <div class="surface-card shadow-2 p-3 border-round">
+                  <div class="flex justify-content-between mb-3">
+                    <div>
+                      <span class="block text-500 font-medium mb-3"
+                        >Cumulative Income</span
+                      >
+                      <div class="text-900 font-medium text-xl">
+                        {{ userStore.user?.account?.cumulativeIncome }}
+                      </div>
+                    </div>
+                    <div
+                      class="flex align-items-center justify-content-center bg-cyan-100 border-round"
+                      style="width: 2.5rem; height: 2.5rem"
+                    >
+                      <i class="pi pi-inbox text-cyan-500 text-xl"></i>
+                    </div>
+                  </div>
+                  <span class="text-green-500 font-medium">520 </span>
+                  <span class="text-500">newly registered</span>
+                </div>
+              </div>
+              <div class="col-12 md:col-6 lg:col-3">
+                <div class="surface-card shadow-2 p-3 border-round">
+                  <div class="flex justify-content-between mb-3">
+                    <div>
+                      <span class="block text-500 font-medium mb-3"
+                        >Comments</span
+                      >
+                      <div class="text-900 font-medium text-xl">152 Unread</div>
+                    </div>
+                    <div
+                      class="flex align-items-center justify-content-center bg-purple-100 border-round"
+                      style="width: 2.5rem; height: 2.5rem"
+                    >
+                      <i class="pi pi-comment text-purple-500 text-xl"></i>
+                    </div>
+                  </div>
+                  <span class="text-green-500 font-medium">85 </span>
+                  <span class="text-500">responded</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- <a-row :gutter="16" class="balance-section">
             <a-col :span="12">
               <a-card title="Available Balance">
                 <div class="balance-amount">{{ availableBalance }} kWh</div>
@@ -55,112 +117,175 @@
                 <div class="balance-amount">{{ transferBalance }} kWh</div>
               </a-card>
             </a-col>
-          </a-row>
- 
-          
+          </a-row> -->
+
           <a-card title="Transfer Energy" class="transfer-section">
             <a-row class="transfer-row">
               <a-col :span="12">
-                <div class="section-label">Select Receiver:</div>
-                <a-select
-                  v-model:value="selectedReceiver"
-                  class="receiver-select"
-                  placeholder="Select a receiver"
-                  @dropdownVisibleChange="loadGlobalAccounts"
-                >
-                  <a-select-option 
-                    v-for="account in globalAccounts" 
-                    :key="account.email" 
-                    :value="account.email"
-                  >
-                    {{ account.full_name || account.email }}
-                  </a-select-option>
-                </a-select>
+                <div class="section-label font-bold">Select Receiver:</div>
+                <Dropdown
+                  v-model="selectedReceiver"
+                  :options="globalAccounts"
+                  optionLabel="full_name"
+                  placeholder="Select an account"
+                  class="w-full"
+                />
               </a-col>
             </a-row>
- 
+            <Divider />
             <!-- Transfer Amount Section -->
-            <a-row class="transfer-row">
-              <a-col :span="12">
-                <div class="section-label">Amount to Transfer (kWh):</div>
-                <a-input-number
-                  v-model:value="transferAmount"
-                  :min="0"
-                  :max="availableBalance"
-                  class="amount-input"
-                />
-                <a-slider
-                  v-model:value="transferAmount"
-                  :min="0"
-                  :max="availableBalance"
-                  class="amount-slider"
-                />
-              </a-col>
-              <a-col :span="12">
-                <div class="section-label">Estimated Earnings ($):</div>
-                <div class="estimated-earnings">${{ estimatedEarnings }}</div>
-              </a-col>
-            </a-row>
-            
-            
+            <div class="transfer-row">
+              <div class="section-label text-xl">Amount to Transfer (kWh):</div>
+              <div class="grid">
+                <div class="col-6">
+                  <div class="flex-auto">
+                    <label for="energy-amount" class="block mb-2">
+                      <span class="font-bold">Energy Amount</span> (Hit enter to
+                      get estimited earning)
+                    </label>
+                    <InputNumber
+                      v-model="transferAmount"
+                      inputId="energy-amount"
+                      :maxFractionDigits="5"
+                    />
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="section-label font-bold">
+                    Estimated Earnings ($):
+                  </div>
+                  <div class="estimated-earnings">${{ estimatedEarnings }}</div>
+                </div>
+              </div>
+            </div>
+
             <div class="button-group">
-              <a-button type="primary" @click="handleTransfer" :loading="loading">
-                Transfer
-              </a-button>
-              <a-button class="cancel-button" @click="handleCancel">
-                Cancel
-              </a-button>
+              <Toast />
+              <ConfirmDialog></ConfirmDialog>
+              <div class="card flex flex-wrap gap-2 justify-content-center">
+                <Button
+                  @click="confirm1()"
+                  label="Transfer"
+                  severity="success"
+                  text
+                  raised
+                  outlined
+                  :loading="loading"
+                  class="text-green-500 mx-4"
+                />
+                <Button
+                  @click="clear()"
+                  label="Clear"
+                  severity="danger"
+                  text
+                  raised
+                  outlined
+                  class="text-red-500 mx-4"
+                />
+              </div>
             </div>
           </a-card>
         </div>
       </a-layout-content>
-      
-      <a-layout-footer class="footer">
-        Ottawa NM ©2024
-      </a-layout-footer>
+      <a-layout-footer class="footer"> Ottawa NM ©2024 </a-layout-footer>
     </a-layout>
   </a-layout>
 </template>
- 
+
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import {
-  DashboardOutlined,
-  SwapOutlined,
-  DownOutlined
-} from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
- 
+import { ref, inject, computed, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import { message } from "ant-design-vue";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import { useUserStore } from "@/stores/user";
+
+const fetchUserInfo = inject<() => Promise<void>>("fetchUserInfo");
+
+// Current logged in user
+const userStore = useUserStore();
+
 const URL = "http://localhost:8080";
 const router = useRouter();
-
-
-const collapsed = ref<boolean>(false);
-const selectedKeys = ref(['transfer']);
-const username = ref('');
-const currentUserEmail = ref('');
 const loading = ref(false);
- 
-
-const availableBalance = ref(0);
-const transferBalance = ref(0);
-const transferAmount = ref(0);
 const ratePerKWh = 0.5;
 
-
-const selectedReceiver = ref('');
+let selectedReceiver = ref<{ email: string; full_name: string } | null>(null);
 const globalAccounts = ref<Array<{ email: string; full_name?: string }>>([]);
- 
+
+// Select value will be each value in this array
+const transferAmount = ref(0);
+
+const confirm = useConfirm();
+const toast = useToast();
+
+watch(selectedReceiver, (newValue, _) => {
+  if (newValue) {
+    console.log(newValue);
+    console.log(
+      "Selected user:",
+      newValue.full_name,
+      " Email:",
+      newValue.email
+    );
+  } else {
+    console.log("No user chosed");
+  }
+});
+
+const confirm1 = () => {
+  if (!selectedReceiver.value) {
+    toast.add({
+      severity: "error",
+      summary: "Failed",
+      detail: "Please select a receiver",
+      life: 3000,
+    });
+    return;
+  }
+
+  if (transferAmount.value <= 0) {
+    toast.add({
+      severity: "error",
+      summary: "Failed",
+      detail: "Please enter a valid amount",
+      life: 3000,
+    });
+    return;
+  }
+  console.log(userStore.user);
+  if (
+    transferAmount.value > (userStore?.user?.account?.availableBalance ?? 0)
+  ) {
+    toast.add({
+      severity: "error",
+      summary: "Failed",
+      detail: "Transfer amount cannot exceed available balance",
+      life: 3000,
+    });
+    return;
+  }
+  confirm.require({
+    message: `Transfer to: ${selectedReceiver?.value?.full_name}
+    , email: ${selectedReceiver?.value?.email}, amount: ${transferAmount?.value} kWh?`,
+    header: "Confirmation",
+    icon: "pi pi-exclamation-triangle",
+    rejectClass: "p-button-secondary p-button-outlined",
+    acceptLabel: "Confirm",
+    accept: () => {
+      handleTransfer();
+    },
+  });
+};
+
+const clear = () => {
+  selectedReceiver.value = null;
+  transferAmount.value = 0;
+};
 
 const estimatedEarnings = computed(() => {
   return (transferAmount.value * ratePerKWh).toFixed(2);
 });
- 
-
-const handleMenuSelect = (data: { key: string }) => {
-  router.push('/' + data.key);
-};
 
 // Fetch loadGlobalAcc
 const loadGlobalAccounts = async () => {
@@ -168,190 +293,86 @@ const loadGlobalAccounts = async () => {
     const response = await fetch(URL + "/api/user/globalAccounts", {
       method: "GET",
       headers: { "Content-Type": "application/json" },
-      credentials: "include"
+      credentials: "include",
     });
 
     if (!response.ok) {
-      throw new Error('Failed to load global accounts');
+      throw new Error("Failed to load global accounts");
     }
 
     const accounts = await response.json();
-    globalAccounts.value = accounts.filter((account: any) => 
-      account.email !== currentUserEmail.value
+    globalAccounts.value = accounts.filter(
+      (account: any) => account.email !== userStore?.user?.email
     );
-  } catch (error) {
-    console.error('Failed to load global accounts:', error);
-    message.error('Failed to load available receivers');
-  }
-};
 
-// Fetch user info
-const fetchUserInfo = async () => {
-  try {
-    const response = await fetch(URL + "/api/user/info", {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
+    globalAccounts.value.forEach((account) => {
+      if (account.full_name === "Rachael Wilson") {
+        account.full_name = "Food Bank";
+      } else if (account.full_name === "Weston Galen") {
+        account.full_name = "Lablows";
+      }
     });
- 
-    if (!response.ok) {
-      throw new Error('HTTP error! Status: ' + response.status);
-    }
- 
-    const userInfo = await response.json();
-    
-    if (userInfo.full_name) {
-      username.value = userInfo.full_name;
-    } else {
-      username.value = 'User';
-    }
-    currentUserEmail.value = userInfo.email;
-
-    if (userInfo.account.availableBalance) {
-      availableBalance.value = Number(userInfo.account.availableBalance);
-    } else {
-      availableBalance.value = 0;
-    }
-
-    if (userInfo.account.transferedBalance) {
-      transferBalance.value = Number(userInfo.account.transferedBalance);
-    } else {
-      transferBalance.value = 0;
-    }
- 
   } catch (error) {
-    console.error('Failed to fetch user info:', error);
-    message.error('Failed to load user information');
+    console.error("Failed to load global accounts:", error);
+    message.error("Failed to load available receivers");
   }
 };
 
-// Handle transfer
 // Handle transfer
 const handleTransfer = async () => {
-  if (!selectedReceiver.value) {
-    message.warning('Please select a receiver');
-    return;
-  }
-
-  if (transferAmount.value <= 0) {
-    message.warning('Please enter a valid amount');
-    return;
-  }
-
-  if (transferAmount.value > availableBalance.value) {
-    message.warning('Transfer amount cannot exceed available balance');
-    return;
-  }
- 
   try {
     loading.value = true;
     const requestBody = {
       amount: transferAmount.value,
-      fromEmail: currentUserEmail.value,
-      toEmail: selectedReceiver.value
+      fromEmail: userStore?.user?.email,
+      toEmail: selectedReceiver.value?.email,
     };
-
     const response = await fetch(URL + "/api/transfer/init", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
     });
- 
     if (!response.ok) {
       const errorMessage = await response.text();
       console.log(errorMessage);
       throw new Error(`HTTP error! Status: ${response.status}`);
     } else {
-      console.log("Transaction succeed!");
-      message.success('Transfer successful');
-      
-      // get receiver name
-      const receiver = globalAccounts.value.find(account => account.email === selectedReceiver.value);
-      const receiverName = receiver ? receiver.full_name : '';
-      
-      // storage transfer info
-      const transferData = {
-        toEmail: selectedReceiver.value,
-        receiverName: receiverName,
-        amount: transferAmount.value,
-        remainingBalance: availableBalance.value - transferAmount.value,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem('lastTransferData', JSON.stringify(transferData));
-      
-      
-      router.push('/confirmation');
+      if (fetchUserInfo) {
+        fetchUserInfo();
+      }
+      const message =
+        "You've transfered " +
+        transferAmount?.value +
+        " kWh to " +
+        selectedReceiver?.value?.full_name;
+      toast.add({
+        severity: "success",
+        summary: "Confirmed",
+        detail: message,
+        life: 3000,
+      });
+      selectedReceiver.value = null;
+      transferAmount.value = 0;
     }
   } catch (error) {
     console.error("Fetch error:", error);
-    message.error('Transfer failed. Please try again.');
   } finally {
     loading.value = false;
   }
 };
 
-// Handle cancel
-const handleCancel = () => {
-  router.push('/dashboard');
-};
-
 // Handle logout
-const handleLogout = async () => {
-  try {
-    const response = await fetch(URL + "/api/logout", {
-      method: "GET",
-      credentials: "include",
-    });
- 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
- 
-    localStorage.removeItem('token');
-    window.location.href = "/";
-  } catch (error) {
-    console.error('Logout failed:', error);
-    message.error('Logout failed. Please try again.');
-    window.location.href = "/";
-  }
-};
- 
 
 onMounted(() => {
-  fetchUserInfo();
   loadGlobalAccounts();
 });
 </script>
- 
-<style scoped>
 
+<style scoped>
 .layout-container {
   min-height: 100vh;
 }
-
-
-.header {
-  background: #fff;
-  padding: 0;
-}
-
-.header-user {
-  float: right;
-  margin-right: 24px;
-}
-
-.ant-dropdown-link {
-  color: rgba(0, 0, 0, 0.85);
-}
-
-
-.logo {
-  height: 32px;
-  margin: 16px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
 
 .content {
   margin: 24px 16px 0;
@@ -363,7 +384,6 @@ onMounted(() => {
   min-height: 360px;
 }
 
-
 .balance-section {
   margin-bottom: 24px;
 }
@@ -373,7 +393,6 @@ onMounted(() => {
   font-weight: bold;
   color: #1890ff;
 }
-
 
 .transfer-section {
   background: #fafafa;
@@ -385,7 +404,6 @@ onMounted(() => {
 
 .section-label {
   margin-bottom: 8px;
-  font-weight: 500;
 }
 
 .receiver-select {
@@ -405,17 +423,6 @@ onMounted(() => {
   font-weight: bold;
   color: #52c41a;
 }
-
-
-.button-group {
-  margin-top: 24px;
-  text-align: right;
-}
-
-.cancel-button {
-  margin-left: 8px;
-}
-
 
 .footer {
   text-align: center;

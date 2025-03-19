@@ -1,43 +1,7 @@
 <template>
+  <Header></Header>
   <a-layout class="layout">
-    <a-layout-sider v-model:collapsed="collapsed" collapsible>
-      <div class="logo" />
-      <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
-        <a-menu-item key="dashboard" @click="handleMenuClick('dashboard')">
-          <template #icon>
-            <dashboard-outlined />
-          </template>
-          <span>Dashboard</span>
-        </a-menu-item>
-        <a-menu-item key="transfer" @click="handleMenuClick('transfer')">
-          <template #icon>
-            <swap-outlined />
-          </template>
-          <span>Transfer</span>
-        </a-menu-item>
-      </a-menu>
-    </a-layout-sider>
-
     <a-layout>
-      <!-- Header -->
-      <a-layout-header class="header">
-        <div class="header__user">
-          <a-dropdown>
-            <a class="header__dropdown">
-              {{ userStore.user?.full_name }}
-              <down-outlined />
-            </a>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item>
-                  <a @click="handleLogout">Logout</a>
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
-        </div>
-      </a-layout-header>
-
       <!-- Content -->
       <a-layout-content class="content">
         <div class="content__main">
@@ -124,7 +88,7 @@
                 >Account: {{ userStore.user?.email }}</span
               >
             </template>
-            <a-list :dataSource="transactions" :loading="loading">
+            <a-list :dataSource="transactions">
               <template #renderItem="{ item }">
                 <a-list-item>
                   <a-row class="transactions__row">
@@ -169,22 +133,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import {
-  DashboardOutlined,
-  SwapOutlined,
-  DownOutlined,
-} from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
-import type { User } from "@/types";
 import { useUserStore } from "@/stores/user";
-import { userService } from "@/api/userService";
 
 const URL = "http://localhost:8080";
 const router = useRouter();
-
-const collapsed = ref<boolean>(false);
-const selectedKeys = ref(["dashboard"]);
-const loading = ref(false);
 
 // Current logged in user
 const userStore = useUserStore();
@@ -218,24 +171,6 @@ const handleMenuClick = (route: string) => {
   router.push(`/${route}`);
 };
 
-// Fetch DashboardInfo
-const fetchUserInfo = async () => {
-  try {
-    loading.value = true;
-
-    const userInfo = await userService.getUserInfo();
-
-    console.log(userInfo);
-
-    userStore.setUser(userInfo.data as User);
-  } catch (error) {
-    console.error("Failed to fetch dashboard info:", error);
-    message.error("Failed to load user information");
-  } finally {
-    loading.value = false;
-  }
-};
-
 // Fetch logout
 const handleLogout = async () => {
   try {
@@ -257,9 +192,7 @@ const handleLogout = async () => {
   }
 };
 
-onMounted(() => {
-  fetchUserInfo();
-});
+onMounted(() => {});
 </script>
 
 <style scoped>
