@@ -4,6 +4,7 @@
     <a-layout>
       <!-- Content -->
       <a-layout-content class="content">
+        <Toast />
         <div class="content__main">
           <a-row :gutter="16" class="overview">
             <a-col :span="12">
@@ -78,50 +79,84 @@
             </a-col>
           </a-row>
 
-          <a-card
-            title="Recent Transactions"
-            class="transactions"
-            :bordered="true"
-          >
-            <template #extra>
-              <span class="transactions__account"
-                >Account: {{ userStore.user?.email }}</span
+          <div class="surface-card shadow-1 border-round p-4">
+            <div class="flex justify-content-between align-items-center mb-5">
+              <span class="text-xl text-900 font-medium"
+                >Recent Transactions</span
               >
-            </template>
-            <a-list :dataSource="transactions">
-              <template #renderItem="{ item }">
-                <a-list-item>
-                  <a-row class="transactions__row">
-                    <a-col :span="6">
-                      <div class="transactions__type">{{ item.type }}</div>
-                      <div class="transactions__date">{{ item.date }}</div>
-                    </a-col>
-                    <a-col :span="12">
-                      <div v-if="item.to" class="transactions__receiver">
-                        To: {{ item.to }}
-                      </div>
-                      <div
-                        class="transactions__status"
-                        :class="{
-                          'transactions__status--completed':
-                            item.status === 'Complete',
-                          'transactions__status--processing':
-                            item.status !== 'Complete',
-                        }"
-                      >
-                        Status: {{ item.status }}
-                      </div>
-                    </a-col>
-                    <a-col :span="6">
-                      <div class="transactions__amount">
-                        {{ item.amount }}kWh
-                      </div>
-                    </a-col>
-                  </a-row>
-                </a-list-item>
-              </template>
-            </a-list>
-          </a-card>
+            </div>
+
+            <!-- 
+            Color used to indicate the amount transfered
+
+            Green: <= 2500 kWh
+            Pink: between 2500 and 5000 kWh
+            Gold: > 5000 kWh
+           -->
+            <ul v-if="haveTransactions" class="list-none p-0 m-0">
+              <li
+                v-for="(item, index) in transactionList"
+                :key="item.fromAccountId"
+                class="flex flex-column md:flex-row md:align-items-center md:justify-content-between p-3 border-1 mb-3"
+                :class="getBgBorderAmountClasses(item.amount)"
+                style="border-radius: 10px"
+              >
+                <div>
+                  <div>
+                    <span
+                      class="inline-flex justify-content-center align-items-center w-2rem h-2rem border-circle border-1"
+                      :class="getBorderAmountClasses(item.amount)"
+                    >
+                      <i
+                        class="pi pi-file"
+                        :class="getTextAmountClasses(item.amount)"
+                      ></i>
+                    </span>
+                    <span
+                      class="font-bold ml-2"
+                      :class="getTextAmountClasses(item.amount)"
+                      >{{ item.userDTO.full_name }}</span
+                    >
+                  </div>
+                  <p
+                    class="mt-2 mb-0"
+                    :class="getTextAmountClasses(item.amount)"
+                  >
+                    On
+                    <span class="font-medium">{{
+                      new Date(item.dateTime).toLocaleString()
+                    }}</span>
+                  </p>
+                </div>
+                <div
+                  class="flex align-items-center justify-content-between md:justify-content-end mt-3 md:mt-0"
+                >
+                  <span
+                    class="font-bold text-sm py-1 px-2"
+                    :class="getBgTextAmountClasses(item.amount)"
+                    style="border-radius: 10px"
+                    >{{ getPhrase(item.amount) }}</span
+                  >
+                  <div class="text-right ml-3">
+                    <span
+                      class="font-bold"
+                      :class="getTextAmountClasses(item.amount)"
+                      >{{ item.amount }}</span
+                    >
+                    <p
+                      class="mt-1 mb-0"
+                      :class="getTextAmountClasses(item.amount)"
+                    >
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <div class="flex justify-content-center">
+              <h1 v-if="!haveTransactions">No Transactions yet</h1>
+            </div>
+          </div>
         </div>
       </a-layout-content>
 
@@ -133,92 +168,126 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { message } from "ant-design-vue";
+import { handleUnlogin } from "@/utils/common";
 import { useUserStore } from "@/stores/user";
+import { useToast } from "primevue/usetoast";
+import type { User, Transaction } from "@/types";
+import { userService } from "@/api/userService";
 
 const URL = "http://localhost:8080";
 const router = useRouter();
+const toast = useToast();
+const transactionList = ref<Transaction[]>([]);
+const haveTransactions = ref(false);
 
 // Current logged in user
 const userStore = useUserStore();
 
-//next TODO: GET transactions by calling api
+// Get the phrase like pitch in, laviash
+const getPhrase = (amount: number) => {
+  if (amount <= 2500) {
+    return "pitch in";
+  } else if (amount > 2500 && amount <= 5000) {
+    return "generous";
+  } else if (amount > 5000) {
+    return "lavish";
+  }
+  return "";
+};
 
-const transactions = ref([
-  {
-    type: "Generate",
-    date: "2024-12-1",
-    status: "Complete",
-    amount: 1000,
-  },
-  {
-    type: "Transfer",
-    date: "2024-12-1",
-    to: "HydroOttawa",
-    status: "In progress",
-    amount: 300,
-  },
-  {
-    type: "Transfer",
-    date: "2024-11-15",
-    to: "HydroOttawa",
-    status: "Complete",
-    amount: 300,
-  },
-]);
+// Get style classes for the transactions
+const getBgBorderAmountClasses = (amount: number) => {
+  if (amount <= 2500) {
+    return ["bg-green-50", "border-green-500"];
+  } else if (amount > 2500 && amount <= 5000) {
+    return ["bg-pink-50", "border-pink-500"];
+  } else if (amount > 5000) {
+    return ["bg-yellow-50", "border-yellow-500"];
+  }
+  return [];
+};
+
+const getBgTextAmountClasses = (amount: number) => {
+  if (amount <= 2500) {
+    return ["bg-green-400", "text-green-900"];
+  } else if (amount > 2500 && amount <= 5000) {
+    return ["bg-pink-400", "text-pink-50"];
+  } else if (amount > 5000) {
+    return ["bg-yellow-400", "text-yellow-900"];
+  }
+  return [];
+};
+
+const getBorderAmountClasses = (amount: number) => {
+  if (amount <= 2500) {
+    return "border-green-200";
+  } else if (amount > 2500 && amount <= 5000) {
+    return "border-pink-200";
+  } else if (amount > 5000) {
+    return "border-yellow-200";
+  }
+  return [];
+};
+
+const getTextAmountClasses = (amount: number) => {
+  if (amount <= 2500) {
+    return "text-green-700";
+  } else if (amount > 2500 && amount <= 5000) {
+    return "text-pink-500";
+  } else if (amount > 5000) {
+    return "text-yellow-700";
+  }
+  return [];
+};
 
 const handleMenuClick = (route: string) => {
   router.push(`/${route}`);
 };
 
-// Fetch logout
-const handleLogout = async () => {
+const getTransactions = async (user: User) => {
   try {
-    const response = await fetch(URL + "/api/logout", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+    const response = await userService.getTransactionById(user);
+    console.log(response);
+    transactionList.value = response.data;
+    if (transactionList.value.length > 0) {
+      haveTransactions.value = true;
     }
-
-    localStorage.removeItem("token");
-    window.location.href = "/";
-  } catch (error) {
-    console.error("Logout failed:", error);
-    message.error("Logout failed. Please try again.");
-    window.location.href = "/";
+  } catch (error: any) {
+    toast.add({
+      severity: "error",
+      summary: "Fail to login",
+      detail: error.response.data,
+      life: 2000,
+    });
   }
 };
 
-onMounted(() => {});
+onMounted(async () => {
+  try {
+    await userService.getUserInfo();
+
+    if (userStore.user) {
+      console.log(userStore.user);
+      getTransactions(userStore.user);
+    } else {
+      toast.add({
+        severity: "error",
+        summary: "Fail to login",
+        detail: "User is null",
+        life: 2000,
+      });
+    }
+    handleUnlogin(userStore.user, router);
+  } catch (error) {
+    console.error("getUserInfo failed:", error);
+    handleUnlogin(null, router);
+  }
+});
 </script>
 
 <style scoped>
 .layout {
   min-height: 100vh;
-}
-
-.logo {
-  height: 32px;
-  margin: 16px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.header {
-  background: #fff;
-  padding: 0;
-}
-
-.header__user {
-  float: right;
-  margin-right: 24px;
-}
-
-.header__dropdown {
-  color: rgba(0, 0, 0, 0.85);
-  cursor: pointer;
 }
 
 .content {
@@ -251,49 +320,9 @@ onMounted(() => {});
   margin-top: 8px;
 }
 
-.transactions {
-  margin-bottom: 24px;
-}
-
 .transactions__account {
   color: rgba(0, 0, 0, 0.65);
   font-size: 14px;
-}
-
-.transactions__row {
-  width: 100%;
-}
-
-.transactions__type {
-  font-weight: bold;
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.transactions__date {
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 14px;
-}
-
-.transactions__receiver {
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.transactions__status {
-  font-size: 14px;
-}
-
-.transactions__status--completed {
-  color: #52c41a;
-}
-
-.transactions__status--processing {
-  color: #1890ff;
-}
-
-.transactions__amount {
-  text-align: right;
-  font-weight: bold;
-  color: #1890ff;
 }
 
 .footer {

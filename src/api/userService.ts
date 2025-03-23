@@ -5,10 +5,15 @@ import type {
   Receiver,
   Register,
   Login,
+  User,
 } from "@/types";
 
 export const userService = {
   getUserInfo() {
     return api.get("/api/user/info");
+  },
+
+  getTransactionById(user: User) {
+    return api.post("/api/user/transaction", user);
   },
 };

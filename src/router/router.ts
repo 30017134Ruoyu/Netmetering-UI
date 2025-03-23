@@ -1,19 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Welcome from "../views/Welcome.vue";
 import Login from "../views/Login.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Register from "../views/Register.vue";
 import Transfer from "../views/Transfer.vue";
-import TransferConfirmation from "../views/TransferConfirmation.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: "/",
-      name: "welcome",
-      component: Welcome,
-    },
     {
       path: "/login",
       name: "login",
@@ -37,9 +30,8 @@ const router = createRouter({
       component: Transfer,
     },
     {
-      path: "/confirmation",
-      name: "confirmation",
-      component: TransferConfirmation,
+      path: "/",
+      redirect: "/dashboard",
     },
   ],
   scrollBehavior(to, from, savedPosition) {

@@ -1,8 +1,8 @@
 // src/types/index.ts
 export interface Transaction {
-  transactionID: string;
-  fromAccount: EnergyAccount;
-  toAccount: EnergyAccount;
+  fromAccountId: string;
+  toAccountId: string;
+  userDTO: User;
   amount: number;
   dateTime: Date;
 }

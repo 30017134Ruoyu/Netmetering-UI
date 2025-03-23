@@ -1,6 +1,8 @@
 <!-- Todo: set into BasicLayput -->
 <template>
   <Header></Header>
+  <Toast group="tc" position="top-center" />
+  <Toast group="rt" position="top-right" />
   <a-layout class="layout-container">
     <a-layout>
       <a-layout-content class="content">
@@ -160,7 +162,6 @@
             </div>
 
             <div class="button-group">
-              <Toast />
               <ConfirmDialog></ConfirmDialog>
               <div class="card flex flex-wrap gap-2 justify-content-center">
                 <Button
@@ -195,8 +196,8 @@
 <script setup lang="ts">
 import { ref, inject, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
-import { message } from "ant-design-vue";
 import { useConfirm } from "primevue/useconfirm";
+import { handleUnlogin } from "@/utils/common";
 import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/stores/user";
 
@@ -240,6 +241,7 @@ const confirm1 = () => {
       summary: "Failed",
       detail: "Please select a receiver",
       life: 3000,
+      group: "rt",
     });
     return;
   }
@@ -250,6 +252,7 @@ const confirm1 = () => {
       summary: "Failed",
       detail: "Please enter a valid amount",
       life: 3000,
+      group: "rt",
     });
     return;
   }
@@ -262,6 +265,7 @@ const confirm1 = () => {
       summary: "Failed",
       detail: "Transfer amount cannot exceed available balance",
       life: 3000,
+      group: "rt",
     });
     return;
   }
@@ -314,7 +318,13 @@ const loadGlobalAccounts = async () => {
     });
   } catch (error) {
     console.error("Failed to load global accounts:", error);
-    message.error("Failed to load available receivers");
+    toast.add({
+      severity: "error",
+      summary: "Failed",
+      detail: "Failed to load available receivers",
+      group: "tc",
+      life: 2000,
+    });
   }
 };
 
@@ -351,6 +361,7 @@ const handleTransfer = async () => {
         summary: "Confirmed",
         detail: message,
         life: 3000,
+        group: "rt",
       });
       selectedReceiver.value = null;
       transferAmount.value = 0;
@@ -364,8 +375,13 @@ const handleTransfer = async () => {
 
 // Handle logout
 
-onMounted(() => {
-  loadGlobalAccounts();
+onMounted(async () => {
+  try {
+    handleUnlogin(userStore.user, router);
+    loadGlobalAccounts();
+  } catch (error) {
+    handleUnlogin(null, router);
+  }
 });
 </script>
 
@@ -384,16 +400,6 @@ onMounted(() => {
   min-height: 360px;
 }
 
-.balance-section {
-  margin-bottom: 24px;
-}
-
-.balance-amount {
-  font-size: 28px;
-  font-weight: bold;
-  color: #1890ff;
-}
-
 .transfer-section {
   background: #fafafa;
 }
@@ -404,18 +410,6 @@ onMounted(() => {
 
 .section-label {
   margin-bottom: 8px;
-}
-
-.receiver-select {
-  width: 100%;
-}
-
-.amount-input {
-  width: 200px;
-}
-
-.amount-slider {
-  margin-top: 16px;
 }
 
 .estimated-earnings {

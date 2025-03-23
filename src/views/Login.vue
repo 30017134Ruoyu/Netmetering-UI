@@ -165,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { authService } from "@/api/authService";
 import { useToast } from "primevue/usetoast";
@@ -211,6 +211,8 @@ const signIn = async () => {
         life: 1500,
       });
 
+      localStorage.setItem("ifLogin", "true");
+
       loading.value = true;
       setTimeout(() => {
         loading.value = false;
@@ -220,7 +222,7 @@ const signIn = async () => {
   } catch (error: any) {
     toast.add({
       severity: "error",
-      summary: "Fail to register",
+      summary: "Fail to login",
       detail: error.response.data,
       life: 2000,
     });
