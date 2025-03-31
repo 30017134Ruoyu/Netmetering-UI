@@ -16,4 +16,8 @@ export const userService = {
   getTransactionById(user: User) {
     return api.post("/api/user/transaction", user);
   },
+
+  deposit(amount: string) {
+    return api.post("/api/user/deposit", amount);
+  },
 };

@@ -1,4 +1,4 @@
-import { createApp, h } from "vue";
+import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";
 import Antd from "ant-design-vue";
@@ -11,6 +11,8 @@ import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
 import InputSwitch from "primevue/inputswitch";
+import InputGroup from "primevue/inputgroup";
+import InputGroupAddon from "primevue/inputgroupaddon";
 import Textarea from "primevue/textarea";
 import Menu from "primevue/menu";
 import Sidebar from "primevue/sidebar";
@@ -36,6 +38,13 @@ import Slider from "primevue/slider";
 import ConfirmDialog from "primevue/confirmdialog";
 import ConfirmationService from "primevue/confirmationservice";
 import SpeedDial from "primevue/speeddial";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import ColumnGroup from "primevue/columngroup"; // optional
+import Row from "primevue/row"; // optional
+import Dialog from "primevue/dialog";
+import Chips from "primevue/chips";
+import SelectButton from "primevue/selectbutton";
 
 // import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/themes/aura-light-green/theme.css";
@@ -87,5 +96,14 @@ app.component("Dropdown", Dropdown);
 app.component("Slider", Slider);
 app.component("ConfirmDialog", ConfirmDialog);
 app.component("SpeedDial", SpeedDial);
+app.component("DataTable", DataTable);
+app.component("Column", Column);
+app.component("ColumnGroup", ColumnGroup);
+app.component("Row", Row);
+app.component("Dialog", Dialog);
+app.component("Chips", Chips);
+app.component("InputGroup", InputGroup);
+app.component("InputGroupAddon", InputGroupAddon);
+app.component("SelectButton", SelectButton);
 
 app.use(Antd).mount("#app");

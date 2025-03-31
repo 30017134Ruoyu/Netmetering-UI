@@ -263,10 +263,15 @@ const register = async () => {
         password: userRegister.value.password,
       });
       const response = await authService.login(loginDTO.value);
-      setTimeout(() => {
-        loading.value = false;
-        router.push("/dashboard");
-      }, 1500);
+
+      if (response.data === true) {
+        localStorage.setItem("ifLogin", "true");
+
+        setTimeout(() => {
+          loading.value = false;
+          router.push("/dashboard");
+        }, 1500);
+      }
     }
   } catch (error: any) {
     toast.add({

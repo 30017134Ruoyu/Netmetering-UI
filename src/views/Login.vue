@@ -142,12 +142,13 @@
           @click="login('google')"
         ></Button>
 
-        <Button
+        <!-- Remove sign in with FaceBook for now-->
+        <!-- <Button
           label="Sign In with Facebook"
           icon="pi pi-facebook"
           class="w-full p-button-secondary mt-2"
           @click="login('facebook')"
-        ></Button>
+        ></Button> -->
 
         <div class="mt-6 text-center text-600">
           Don't have an account?

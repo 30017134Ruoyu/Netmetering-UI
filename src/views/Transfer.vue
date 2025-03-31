@@ -124,14 +124,61 @@
           <a-card title="Transfer Energy" class="transfer-section">
             <a-row class="transfer-row">
               <a-col :span="12">
-                <div class="section-label font-bold">Select Receiver:</div>
-                <Dropdown
-                  v-model="selectedReceiver"
-                  :options="globalAccounts"
-                  optionLabel="full_name"
-                  placeholder="Select an account"
-                  class="w-full"
-                />
+                <!-- Tab menu -->
+                <ul
+                  class="px-4 mb-3 list-none flex overflow-x-auto select-none"
+                >
+                  <li>
+                    <a
+                      v-ripple
+                      class="cursor-pointer px-4 py-3 flex align-items-center border-bottom-2 hover:border-teal-500 transition-colors transition-duration-150 p-ripple"
+                      :class="{
+                        'border-teal-500 text-teal-500 hover:border-teal-500':
+                          active1 === 0,
+                        'text-700 border-transparent': active1 !== 0,
+                      }"
+                      @click="(active1 = 0), (ifForGlobal = false)"
+                    >
+                      <i class="pi pi-home mr-2"></i>
+                      <span class="font-medium">Your Contacts</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      v-ripple
+                      class="cursor-pointer px-4 py-3 flex align-items-center border-bottom-2 hover:border-teal-500 transition-colors transition-duration-150 p-ripple"
+                      :class="{
+                        'border-teal-500 text-teal-500 hover:border-teal-500':
+                          active1 === 1,
+                        'text-700 border-transparent': active1 !== 1,
+                      }"
+                      @click="(active1 = 1), (ifForGlobal = true)"
+                    >
+                      <i class="pi pi-users mr-2"></i>
+                      <span class="font-medium">Global Accounts</span>
+                    </a>
+                  </li>
+                </ul>
+                <div v-if="ifForGlobal">
+                  <div class="section-label font-bold">Select Receiver:</div>
+                  <Dropdown
+                    v-model="selectedReceiver"
+                    :options="globalAccounts"
+                    optionLabel="full_name"
+                    placeholder="Select an account"
+                    class="w-full"
+                  />
+                </div>
+                <div v-if="!ifForGlobal">
+                  <div class="section-label font-bold">Select Receiver:</div>
+                  <Dropdown
+                    v-model="selectedReceiver"
+                    :options="contacts"
+                    optionLabel="full_name"
+                    placeholder="Select an account"
+                    class="w-full"
+                  />
+                </div>
               </a-col>
             </a-row>
             <Divider />
@@ -200,6 +247,9 @@ import { useConfirm } from "primevue/useconfirm";
 import { handleUnlogin } from "@/utils/common";
 import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/stores/user";
+import type { User, Transaction } from "@/types";
+import { userService } from "@/api/userService";
+import { contactsService } from "@/api/contactsService";
 
 const fetchUserInfo = inject<() => Promise<void>>("fetchUserInfo");
 
@@ -213,12 +263,16 @@ const ratePerKWh = 0.5;
 
 let selectedReceiver = ref<{ email: string; full_name: string } | null>(null);
 const globalAccounts = ref<Array<{ email: string; full_name?: string }>>([]);
+const contacts = ref<Array<User>>([]);
 
 // Select value will be each value in this array
 const transferAmount = ref(0);
 
 const confirm = useConfirm();
 const toast = useToast();
+
+const active1 = ref(0);
+const ifForGlobal = ref(false);
 
 watch(selectedReceiver, (newValue, _) => {
   if (newValue) {
@@ -373,12 +427,17 @@ const handleTransfer = async () => {
   }
 };
 
-// Handle logout
-
 onMounted(async () => {
   try {
+    // Make sure user is logged in
+    await userService.getUserInfo();
     handleUnlogin(userStore.user, router);
     loadGlobalAccounts();
+    const contactList = await contactsService.getAllContacts();
+    if (contactList) {
+      console.log(contactList.data);
+      contacts.value = contactList.data;
+    }
   } catch (error) {
     handleUnlogin(null, router);
   }

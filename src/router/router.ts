@@ -3,6 +3,12 @@ import Login from "../views/Login.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Register from "../views/Register.vue";
 import Transfer from "../views/Transfer.vue";
+import Contacts from "../views/Contacts.vue";
+import Account from "../views/accounts/account.vue";
+import Profile from "../views/accounts/Profile.vue";
+import Settings from "../views/accounts/settings.vue";
+import Funds from "../views/accounts/Funds.vue";
+import NM from "../views/accounts/NM.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +34,37 @@ const router = createRouter({
       path: "/transfer",
       name: "transfer",
       component: Transfer,
+    },
+    {
+      path: "/contacts",
+      name: "contacts",
+      component: Contacts,
+    },
+    {
+      path: "/account",
+      component: Account,
+      children: [
+        {
+          path: "",
+          redirect: "/account/profile",
+        },
+        {
+          path: "profile",
+          component: Profile,
+        },
+        {
+          path: "setting",
+          component: Settings,
+        },
+        {
+          path: "funds",
+          component: Funds,
+        },
+        {
+          path: "nm",
+          component: NM,
+        },
+      ],
     },
     {
       path: "/",

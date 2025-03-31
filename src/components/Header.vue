@@ -62,6 +62,7 @@
             <a
               v-ripple
               class="flex align-items-center cursor-pointer p-3 text-700 hover:surface-100 border-round transition-colors transition-duration-150 p-ripple"
+              @click="navigateAndClose('/account')"
             >
               <i class="pi pi-user mr-2"></i>
               <span class="font-medium">Profile</span>
@@ -71,12 +72,33 @@
             <a
               v-ripple
               class="flex align-items-center cursor-pointer p-3 text-700 hover:surface-100 border-round transition-colors transition-duration-150 p-ripple"
+              @click="navigateAndClose('/account/nm')"
+            >
+              <i class="pi pi-link mr-2"></i>
+              <span class="font-medium">Connect Net metering</span>
+            </a>
+          </li>
+          <li>
+            <a
+              v-ripple
+              class="flex align-items-center cursor-pointer p-3 text-700 hover:surface-100 border-round transition-colors transition-duration-150 p-ripple"
+              @click="navigateAndClose('/account/funds')"
+            >
+              <i class="pi pi-dollar mr-2"></i>
+              <span class="font-medium">Add funds</span>
+            </a>
+          </li>
+          <li>
+            <a
+              v-ripple
+              class="flex align-items-center cursor-pointer p-3 text-700 hover:surface-100 border-round transition-colors transition-duration-150 p-ripple"
+              @click="navigateAndClose('/account/setting')"
             >
               <i class="pi pi-cog mr-2"></i>
               <span class="font-medium">Settings</span>
             </a>
           </li>
-          <li>
+          <li v-if="!ifLogin">
             <a
               v-ripple
               @click="router.push('/login')"
@@ -104,7 +126,7 @@
 
 <script setup lang="ts">
 import { ref, inject, onMounted, onBeforeUnmount, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { authService } from "@/api/authService";
 import { useToast } from "primevue/usetoast";
@@ -116,11 +138,24 @@ const fetchUserInfo = inject<() => Promise<void>>("fetchUserInfo");
 const userStore = useUserStore();
 
 const router = useRouter();
+const route = useRoute();
 
 const username = computed(() => userStore.user?.full_name || "Guest");
 
 const showDropdown = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
+const ifLogin = ref(false);
+
+const navigateAndClose = async (path: string) => {
+  if (route.path !== path) {
+    await router.push(path);
+  }
+  showDropdown.value = false;
+
+  // Hide the 'hidden' class
+  const dropdownMenu = dropdownRef.value?.querySelector("ul");
+  dropdownMenu?.classList.add("hidden");
+};
 
 const toggleDropdown = (e: MouseEvent) => {
   showDropdown.value = !showDropdown.value;
@@ -164,6 +199,7 @@ const signout = async () => {
     localStorage.setItem("ifLogin", "false");
 
     setTimeout(() => {
+      ifLogin.value = false;
       router.push("/login");
     }, 2000);
   }
@@ -171,6 +207,11 @@ const signout = async () => {
 };
 
 onMounted(() => {
+  const l = localStorage.getItem("ifLogin");
+  if (l) {
+    ifLogin.value = true;
+  }
+
   if (fetchUserInfo) {
     fetchUserInfo();
   }
