@@ -128,7 +128,10 @@
               </div>
             </Dialog>
           </div>
-          <p v-if="!contacts.length" class="text-2xl text-center">
+          <p
+            v-if="!contacts.length && !ifForGlobal"
+            class="text-2xl text-center"
+          >
             You have no contacts yet
           </p>
           <div class="overflow-x-scroll">
@@ -251,6 +254,7 @@
                   </div>
                 </template>
               </Column>
+              <!-- Leave these 2 columns blank for now -->
               <Column style="min-width: 14rem">
                 <template #header>
                   <span class="font-semibold text-sm text-color-secondary"

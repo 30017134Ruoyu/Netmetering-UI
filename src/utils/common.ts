@@ -1,19 +1,23 @@
 import type { Router } from "vue-router";
 import type { User } from "@/types";
+import { userService } from "@/api/userService";
 import { ref } from "vue";
 
-export const handleUnlogin = (user: User | null, router: Router) => {
-  const ifLogin = localStorage.getItem("ifLogin");
-  console.log("Check if logined, if not, redirect to login page");
+export const handleUnlogin = async (user: User | null, router: Router) => {
+  console.log("Check if logined via /api/user/info");
 
-  /*
-   If user haven't login, redirect them to the login page
-   user == null is used to check if the broswer is being closed
-   if it is, then need to log in again
-   */
-  if (user == null || !ifLogin || ifLogin == "false") {
+  try {
+    // CHeck if user logged in
+    const response = await userService.getUserInfo();
+
+    if (!response || !response.data) {
+      throw new Error("No user info returned");
+    }
+
+    localStorage.setItem("ifLogin", "true");
+  } catch (error) {
+    console.log("User not logged in or session expired");
     localStorage.setItem("ifLogin", "false");
-    console.log("🔥 ifLogin:", ifLogin);
     router.push("/login");
   }
 };

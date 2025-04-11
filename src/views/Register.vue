@@ -173,12 +173,12 @@
           @click="login('google')"
         ></Button>
 
-        <Button
+        <!-- <Button
           label="Sign up with Facebook"
           icon="pi pi-facebook"
           class="w-full p-button-secondary mt-2"
           @click="login('facebook')"
-        ></Button>
+        ></Button> -->
 
         <div class="mt-6 text-center text-600">
           Already have an account?

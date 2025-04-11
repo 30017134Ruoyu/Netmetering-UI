@@ -12,21 +12,21 @@
                 <a-row :gutter="16">
                   <a-col :span="12">
                     <div class="overview__item">
-                      <div class="overview__label">Available Balance</div>
+                      <div class="overview__label">Total Generated Energy</div>
                       <div class="overview__value">
-                        {{ userStore.user?.account?.availableBalance }}kWh
+                        {{ userStore.user?.account?.energyBalance }}kWh
                       </div>
                     </div>
                     <div class="overview__item">
-                      <div class="overview__label">Total Generated</div>
+                      <div class="overview__label">Avaliable energy</div>
                       <div class="overview__value">
-                        {{ userStore.user?.account?.energyBalance }}kWh
+                        {{ userStore.user?.account?.availableBalance }}kWh
                       </div>
                     </div>
                   </a-col>
                   <a-col :span="12">
                     <div class="overview__item">
-                      <div class="overview__label">Transfer Balance</div>
+                      <div class="overview__label">Energy Transfered</div>
                       <div class="overview__value">
                         {{ userStore.user?.account?.transferedBalance }}kWh
                         <a-button
@@ -39,7 +39,7 @@
                       </div>
                     </div>
                     <div class="overview__item">
-                      <div class="overview__label">Self-Used</div>
+                      <div class="overview__label">Consumed Balance</div>
                       <div class="overview__value">
                         {{ userStore.user?.account?.consumedBalance }}kWh
                       </div>
@@ -57,23 +57,28 @@
                     ${{ userStore.user?.account?.cumulativeIncome }}
                   </div>
                 </div>
+                <!-- 
+                  Not decided yet how to deal with the other "incomes"
+                  Maybe we can add something like "Loblaws credits" based on transactions
+                  to Loblaws. And same idea applies to others as well
+                -->
                 <a-row :gutter="16">
                   <a-col :span="12">
                     <div class="overview__item">
-                      <div class="overview__label">Monthly income</div>
+                      <div class="overview__label">Average income</div>
                       <div class="overview__value">
                         ${{ userStore.user?.account?.averageIncome }}
                       </div>
                     </div>
                   </a-col>
-                  <a-col :span="12">
+                  <!-- <a-col :span="12">
                     <div class="overview__item">
                       <div class="overview__label">Potential income</div>
                       <div class="overview__value">
                         ${{ userStore.user?.account?.averageIncome }}
                       </div>
                     </div>
-                  </a-col>
+                  </a-col> -->
                 </a-row>
               </a-card>
             </a-col>

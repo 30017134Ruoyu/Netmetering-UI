@@ -34,7 +34,7 @@
                       class="flex align-items-center justify-content-center bg-blue-100 border-round"
                       style="width: 2.5rem; height: 2.5rem"
                     >
-                      <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
+                      <i class="pi pi-trophy text-blue-500 text-xl"></i>
                     </div>
                   </div>
                   <span class="text-green-500 font-medium">24 new </span>
@@ -56,7 +56,7 @@
                       class="flex align-items-center justify-content-center bg-orange-100 border-round"
                       style="width: 2.5rem; height: 2.5rem"
                     >
-                      <i class="pi pi-map-marker text-orange-500 text-xl"></i>
+                      <i class="pi pi-wallet text-orange-500 text-xl"></i>
                     </div>
                   </div>
                   <span class="text-green-500 font-medium">%52+ </span>
@@ -78,7 +78,7 @@
                       class="flex align-items-center justify-content-center bg-cyan-100 border-round"
                       style="width: 2.5rem; height: 2.5rem"
                     >
-                      <i class="pi pi-inbox text-cyan-500 text-xl"></i>
+                      <i class="pi pi-dollar text-cyan-500 text-xl"></i>
                     </div>
                   </div>
                   <span class="text-green-500 font-medium">520 </span>
@@ -259,7 +259,7 @@ const userStore = useUserStore();
 const URL = "http://localhost:8080";
 const router = useRouter();
 const loading = ref(false);
-const ratePerKWh = 0.5;
+const PRICE = 0.076;
 
 let selectedReceiver = ref<{ email: string; full_name: string } | null>(null);
 const globalAccounts = ref<Array<{ email: string; full_name?: string }>>([]);
@@ -342,7 +342,8 @@ const clear = () => {
 };
 
 const estimatedEarnings = computed(() => {
-  return (transferAmount.value * ratePerKWh).toFixed(2);
+  const earnings = transferAmount.value * PRICE;
+  return Number(earnings.toFixed(3));
 });
 
 // Fetch loadGlobalAcc
